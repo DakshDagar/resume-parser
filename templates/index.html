@@ -18,7 +18,6 @@
 <header class="border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <!-- Replace src with your image -->
             <img 
                 src="https://media.licdn.com/dms/image/v2/D4E03AQGH9TZknahq-w/profile-displayphoto-scale_400_400/B4EZsppVlDHcAk-/0/1765930262884?e=1767830400&v=beta&t=zoRwMQS_rvQp5uw9ovBaji0bJ1jRepQ_7uzNDoY6Vns"
                 alt="Profile"
@@ -43,7 +42,7 @@
         </h1>
         <p class="mt-6 text-slate-400 text-lg">
             Upload a resume and instantly extract key information like skills, experience,
-            and profiles using AI-powered parsing built for modern hiring workflows.
+            and profiles using AI-powered parsing.
         </p>
 
         <form action="/process" method="post" enctype="multipart/form-data" class="mt-10 space-y-4">
@@ -74,7 +73,6 @@
         </p>
     </div>
 
-    <!-- Visual / Illustration -->
     <div class="hidden lg:flex justify-center">
         <div class="relative">
             <div class="absolute inset-0 bg-emerald-400/20 blur-3xl rounded-full"></div>
@@ -84,8 +82,7 @@
 {
   "full_name": "Daksh Dagar",
   "email": "daksh.dagar1300@gmail.com",
-  "skills": ["Python", "SQL", "React"],
-  "experience": "5+ years"
+  "skills": ["Python", "SQL", "React"]
 }
                 </pre>
             </div>
@@ -100,36 +97,57 @@
         Extracted Resume Data
     </h2>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-        <div id="dictionaryValues" class="text-sm leading-relaxed"></div>
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+        <div id="dictionaryValues" class="space-y-4 text-sm"></div>
     </div>
 </section>
 
 <script>
+    function formatKey(key) {
+        return key
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function renderValue(key, value) {
+        if (Array.isArray(value)) {
+            return value.join(", ");
+        }
+        return value;
+    }
+
     function generateHTML(data, depth = 0) {
         let html = "";
+
         for (const key in data) {
             if (!data.hasOwnProperty(key)) continue;
-
             const value = data[key];
-            const padding = depth * 16;
 
-            if (typeof value === "object" && value !== null) {
+            if (typeof value === "object" && value !== null && !Array.isArray(value)) {
                 html += `
-                    <div style="padding-left:${padding}px">
-                        <p class="font-semibold text-emerald-400">${key}</p>
-                        ${generateHTML(value, depth + 1)}
+                    <div class="mt-6">
+                        <p class="text-emerald-400 font-semibold mb-2">
+                            ${formatKey(key)}
+                        </p>
+                        <div class="pl-4 border-l border-slate-700 space-y-2">
+                            ${generateHTML(value, depth + 1)}
+                        </div>
                     </div>
                 `;
             } else {
                 html += `
-                    <p style="padding-left:${padding}px">
-                        <span class="text-slate-400">${key}:</span>
-                        <span class="text-slate-200"> ${value}</span>
-                    </p>
+                    <div class="flex gap-2">
+                        <span class="text-slate-400 min-w-[160px]">
+                            ${formatKey(key)}:
+                        </span>
+                        <span class="text-slate-200">
+                            ${renderValue(key, value)}
+                        </span>
+                    </div>
                 `;
             }
         }
+
         return html;
     }
 
@@ -140,8 +158,15 @@
 
 <!-- ================= FOOTER ================= -->
 <footer class="border-t border-slate-800">
-    <div class="max-w-7xl mx-auto px-6 py-8 text-sm text-slate-500 flex flex-col sm:flex-row justify-between gap-4">
+    <div class="max-w-7xl mx-auto px-6 py-8 text-sm text-slate-500 flex items-center justify-between">
         <p>Built by Daksh Dagar • Resume Parsing Demo</p>
+
+        <img
+            src="https://images.teamtailor-cdn.com/images/s3/teamtailor-na-maroon/gallery_picture-v6/image_uploads/cbd5efd1-2b89-4c8e-a2b9-fc03eee8fd05/original.png"
+            alt="Logo"
+            class="h-8 opacity-80"
+        />
+
         <p>Powered by AI • Flask • Python</p>
     </div>
 </footer>
