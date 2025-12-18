@@ -6,9 +6,7 @@
     <title>Resume Insight Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
 
@@ -20,8 +18,7 @@
         <div class="flex items-center gap-3">
             <img 
                 src="https://media.licdn.com/dms/image/v2/D4E03AQGH9TZknahq-w/profile-displayphoto-scale_400_400/B4EZsppVlDHcAk-/0/1765930262884?e=1767830400&v=beta&t=zoRwMQS_rvQp5uw9ovBaji0bJ1jRepQ_7uzNDoY6Vns"
-                alt="Profile"
-                class="w-10 h-10 rounded-full object-cover border border-slate-700"
+                class="w-10 h-10 rounded-full border border-slate-700"
             />
             <div>
                 <p class="text-sm font-semibold">Daksh Dagar</p>
@@ -41,8 +38,7 @@
             Turn resumes into <span class="text-emerald-400">structured insights</span>
         </h1>
         <p class="mt-6 text-slate-400 text-lg">
-            Upload a resume and instantly extract key information like skills, experience,
-            and profiles using AI-powered parsing.
+            Upload a resume and instantly extract key information using AI-powered parsing.
         </p>
 
         <form action="/process" method="post" enctype="multipart/form-data" class="mt-10 space-y-4">
@@ -54,39 +50,18 @@
                 class="block w-full text-sm text-slate-300
                        file:mr-4 file:py-2.5 file:px-4
                        file:rounded-lg file:border-0
-                       file:text-sm file:font-semibold
                        file:bg-slate-800 file:text-slate-200
                        hover:file:bg-slate-700
-                       bg-slate-900 border border-slate-700 rounded-lg cursor-pointer"
+                       bg-slate-900 border border-slate-700 rounded-lg"
             />
 
             <button
                 type="submit"
-                class="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-6 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition"
+                class="rounded-lg bg-emerald-500 px-6 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition"
             >
                 Analyze Resume
             </button>
         </form>
-
-        <p class="mt-4 text-xs text-slate-500">
-            Supported formats: PDF, DOCX, TXT
-        </p>
-    </div>
-
-    <div class="hidden lg:flex justify-center">
-        <div class="relative">
-            <div class="absolute inset-0 bg-emerald-400/20 blur-3xl rounded-full"></div>
-            <div class="relative bg-slate-900 border border-slate-800 rounded-2xl p-8 w-[360px] shadow-xl">
-                <p class="text-sm text-slate-400 mb-3">Parsed Output Preview</p>
-                <pre class="text-xs text-slate-300 whitespace-pre-wrap">
-{
-  "full_name": "Daksh Dagar",
-  "email": "daksh.dagar1300@gmail.com",
-  "skills": ["Python", "SQL", "React"]
-}
-                </pre>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -103,51 +78,68 @@
 </section>
 
 <script>
+    const HEADING_COLOR = "rgb(52 211 153 / var(--tw-text-opacity, 1))";
+
     function formatKey(key) {
-        return key
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, c => c.toUpperCase());
+        return key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     }
 
-    function renderValue(key, value) {
-        if (Array.isArray(value)) {
-            return value.join(", ");
+    function renderArray(arr) {
+        if (arr.every(v => typeof v === "string")) {
+            return `<span class="text-slate-200">${arr.join(", ")}</span>`;
         }
-        return value;
+
+        return arr.map((obj, idx) => `
+            <div class="mt-4 p-4 rounded-lg bg-slate-950/40 border border-slate-800">
+                <p class="text-sm font-semibold mb-2" style="color:${HEADING_COLOR}">
+                    Experience ${idx + 1}
+                </p>
+                ${generateHTML(obj)}
+            </div>
+        `).join("");
     }
 
-    function generateHTML(data, depth = 0) {
+    function generateHTML(data) {
         let html = "";
 
         for (const key in data) {
-            if (!data.hasOwnProperty(key)) continue;
             const value = data[key];
 
-            if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+            if (Array.isArray(value)) {
                 html += `
                     <div class="mt-6">
-                        <p class="text-emerald-400 font-semibold mb-2">
+                        <p class="font-semibold mb-2" style="color:${HEADING_COLOR}">
                             ${formatKey(key)}
                         </p>
-                        <div class="pl-4 border-l border-slate-700 space-y-2">
-                            ${generateHTML(value, depth + 1)}
+                        ${renderArray(value)}
+                    </div>
+                `;
+            }
+            else if (typeof value === "object" && value !== null) {
+                html += `
+                    <div class="mt-6">
+                        <p class="font-semibold mb-2" style="color:${HEADING_COLOR}">
+                            ${formatKey(key)}
+                        </p>
+                        <div class="pl-4 border-l border-slate-800 space-y-2">
+                            ${generateHTML(value)}
                         </div>
                     </div>
                 `;
-            } else {
+            }
+            else {
                 html += `
-                    <div class="flex gap-2">
-                        <span class="text-slate-400 min-w-[160px]">
+                    <div class="flex gap-3">
+                        <span class="min-w-[160px]" style="color:${HEADING_COLOR}">
                             ${formatKey(key)}:
                         </span>
                         <span class="text-slate-200">
-                            ${renderValue(key, value)}
+                            ${value ?? "-"}
                         </span>
                     </div>
                 `;
             }
         }
-
         return html;
     }
 
@@ -163,7 +155,6 @@
 
         <img
             src="https://images.teamtailor-cdn.com/images/s3/teamtailor-na-maroon/gallery_picture-v6/image_uploads/cbd5efd1-2b89-4c8e-a2b9-fc03eee8fd05/original.png"
-            alt="Logo"
             class="h-8 opacity-80"
         />
 
