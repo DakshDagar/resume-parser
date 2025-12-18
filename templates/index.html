@@ -62,6 +62,27 @@
                 Analyze Resume
             </button>
         </form>
+
+        <p class="mt-4 text-xs text-slate-500">
+            Supported formats: PDF, DOCX, TXT
+        </p>
+    </div>
+
+    <!-- Parsed Output Preview (RESTORED) -->
+    <div class="hidden lg:flex justify-center">
+        <div class="relative">
+            <div class="absolute inset-0 bg-emerald-400/20 blur-3xl rounded-full"></div>
+            <div class="relative bg-slate-900 border border-slate-800 rounded-2xl p-8 w-[360px] shadow-xl">
+                <p class="text-sm text-slate-400 mb-3">Parsed Output Preview</p>
+                <pre class="text-xs text-slate-300 whitespace-pre-wrap">
+{
+  "full_name": "Daksh Dagar",
+  "email": "daksh.dagar1300@gmail.com",
+  "skills": ["Python", "SQL", "React"]
+}
+                </pre>
+            </div>
+        </div>
     </div>
 </section>
 
