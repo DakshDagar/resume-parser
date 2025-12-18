@@ -113,6 +113,16 @@
 <script>
     const HEADING_COLOR = "rgb(52 211 153 / var(--tw-text-opacity, 1))";
 
+    const PRIORITY_ORDER = [
+        "full_name",
+        "email",
+        "phone",
+        "location",
+        "github",
+        "linkedin",
+        "additional_urls"
+    ];
+
     function formatKey(key) {
         return key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     }
@@ -132,10 +142,44 @@
         `).join("");
     }
 
+    function renderPrimitive(key, value) {
+        return `
+            <div class="flex gap-3">
+                <span class="min-w-[160px]" style="color:${HEADING_COLOR}">
+                    ${formatKey(key)}:
+                </span>
+                <span class="text-slate-200">
+                    ${value || "-"}
+                </span>
+            </div>
+        `;
+    }
+
     function generateHTML(data) {
         let html = "";
 
-        for (const key in data) {
+        // Render priority fields first
+        PRIORITY_ORDER.forEach(key => {
+            if (!(key in data)) return;
+            const value = data[key];
+
+            if (Array.isArray(value)) {
+                html += `
+                    <div class="mt-6">
+                        <p class="font-semibold mb-2" style="color:${HEADING_COLOR}">
+                            ${formatKey(key)}
+                        </p>
+                        ${renderArray(value)}
+                    </div>
+                `;
+            } else {
+                html += renderPrimitive(key, value);
+            }
+        });
+
+        // Render remaining fields
+        Object.keys(data).forEach(key => {
+            if (PRIORITY_ORDER.includes(key)) return;
             const value = data[key];
 
             if (Array.isArray(value)) {
@@ -161,18 +205,10 @@
                 `;
             }
             else {
-                html += `
-                    <div class="flex gap-3">
-                        <span class="min-w-[160px]" style="color:${HEADING_COLOR}">
-                            ${formatKey(key)}:
-                        </span>
-                        <span class="text-slate-200">
-                            ${value ?? "-"}
-                        </span>
-                    </div>
-                `;
+                html += renderPrimitive(key, value);
             }
-        }
+        });
+
         return html;
     }
 
