@@ -127,21 +127,6 @@
         return key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     }
 
-    function renderArray(arr) {
-        if (arr.every(v => typeof v === "string")) {
-            return `<span class="text-slate-200">${arr.join(", ")}</span>`;
-        }
-
-        return arr.map((obj, idx) => `
-            <div class="mt-4 p-4 rounded-lg bg-slate-950/40 border border-slate-800">
-                <p class="text-sm font-semibold mb-2" style="color:${HEADING_COLOR}">
-                    Experience ${idx + 1}
-                </p>
-                ${generateHTML(obj)}
-            </div>
-        `).join("");
-    }
-
     function renderPrimitive(key, value) {
         return `
             <div class="flex gap-3">
@@ -155,57 +140,97 @@
         `;
     }
 
+    function renderInlineArray(key, arr) {
+        return renderPrimitive(key, arr.join(", "));
+    }
+
+    function renderEmployment(exp, idx) {
+        let html = `
+            <div class="mt-4 p-4 rounded-lg bg-slate-950/40 border border-slate-800">
+                <p class="text-sm font-semibold mb-3" style="color:${HEADING_COLOR}">
+                    Experience ${idx + 1}
+                </p>
+        `;
+
+        const {
+            company,
+            location,
+            position,
+            start_date,
+            end_date,
+            responsibilities
+        } = exp;
+
+        if (company) html += renderPrimitive("company", company);
+        if (location) html += renderPrimitive("location", location);
+        if (position) html += renderPrimitive("position", position);
+
+        if (start_date || end_date) {
+            html += renderPrimitive(
+                "duration",
+                `${start_date || ""}${start_date && end_date ? " – " : ""}${end_date || ""}`
+            );
+        }
+
+        if (Array.isArray(responsibilities) && responsibilities.length) {
+            html += `
+                <div class="mt-4">
+                    <p class="font-semibold mb-2" style="color:${HEADING_COLOR}">
+                        Responsibilities
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 text-slate-200">
+                        ${responsibilities.map(r => `<li>${r}</li>`).join("")}
+                    </ul>
+                </div>
+            `;
+        }
+
+        html += `</div>`;
+        return html;
+    }
+
     function generateHTML(data) {
         let html = "";
 
-        // Render priority fields first
+        // Priority identity fields
         PRIORITY_ORDER.forEach(key => {
             if (!(key in data)) return;
             const value = data[key];
 
-            if (Array.isArray(value)) {
-                html += `
-                    <div class="mt-6">
-                        <p class="font-semibold mb-2" style="color:${HEADING_COLOR}">
-                            ${formatKey(key)}
-                        </p>
-                        ${renderArray(value)}
-                    </div>
-                `;
+            if (key === "additional_urls" && Array.isArray(value)) {
+                html += renderInlineArray(key, value);
             } else {
                 html += renderPrimitive(key, value);
             }
         });
 
-        // Render remaining fields
+        // Remaining fields
         Object.keys(data).forEach(key => {
             if (PRIORITY_ORDER.includes(key)) return;
+
             const value = data[key];
 
-            if (Array.isArray(value)) {
+            if (key === "employment_details" && Array.isArray(value)) {
+                html += `
+                    <div class="mt-6">
+                        <p class="font-semibold mb-2" style="color:${HEADING_COLOR}">
+                            Employment Details
+                        </p>
+                        ${value.map(renderEmployment).join("")}
+                    </div>
+                `;
+            }
+            else if (Array.isArray(value)) {
                 html += `
                     <div class="mt-6">
                         <p class="font-semibold mb-2" style="color:${HEADING_COLOR}">
                             ${formatKey(key)}
                         </p>
-                        ${renderArray(value)}
+                        <span class="text-slate-200">
+                            ${value.join(", ")}
+                        </span>
                     </div>
                 `;
-            }
-            else if (typeof value === "object" && value !== null) {
-                html += `
-                    <div class="mt-6">
-                        <p class="font-semibold mb-2" style="color:${HEADING_COLOR}">
-                            ${formatKey(key)}
-                        </p>
-                        <div class="pl-4 border-l border-slate-800 space-y-2">
-                            ${generateHTML(value)}
-                        </div>
-                    </div>
-                `;
-            }
-            else {
-                html += renderPrimitive(key, value);
             }
         });
 
