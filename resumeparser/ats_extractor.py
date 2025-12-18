@@ -6,6 +6,7 @@ from openai import OpenAI
 
 CONFIG_PATH = "config.yaml"
 
+
 def load_api_key():
     api_key = os.getenv("OPENAI_API_KEY")
     if api_key:
@@ -18,20 +19,19 @@ def load_api_key():
 
     raise RuntimeError("OPENAI_API_KEY not found")
 
+
 client = OpenAI(api_key=load_api_key())
 
+
 def extract_json(text: str) -> dict:
-    """
-    Safely extract JSON from model output even if it adds extra text.
-    """
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        # Try to extract JSON block manually
         match = re.search(r"\{.*\}", text, re.DOTALL)
         if match:
             return json.loads(match.group())
         raise ValueError("Model did not return valid JSON")
+
 
 def ats_extractor(resume_text: str) -> dict:
     prompt = """

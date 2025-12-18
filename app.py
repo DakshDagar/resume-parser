@@ -4,7 +4,7 @@ from pypdf import PdfReader
 from docx import Document
 from resumeparser.ats_extractor import ats_extractor
 
-UPLOAD_PATH = "__DATA__"
+UPLOAD_PATH = "_DATA_"
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 
 app = Flask(__name__)
@@ -31,7 +31,6 @@ def process_resume():
     file_path = os.path.join(UPLOAD_PATH, f"resume{ext}")
     file.save(file_path)
 
-    # Extract text based on file type
     if ext == ".pdf":
         resume_text = extract_text_from_pdf(file_path)
     elif ext == ".docx":
@@ -68,4 +67,4 @@ def extract_text_from_txt(path):
 
 
 if __name__ == "__main__":
-    app.run(port=3000, debug=True)
+    app.run()
