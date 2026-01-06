@@ -117,5 +117,5 @@ Local LLM fallback for zero-cost parsing
 Daksh Dagar
 Portfolio project focused on practical AI integration, clean backend design, and production-ready UI.
 
-cd ai-r
-esume-parser
+cd ai-resume-parser
+
